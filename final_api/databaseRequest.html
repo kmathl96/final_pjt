@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id='app'>
+    <button @click="getData">
+      getData
+    </button>
+    <button @click="showhowmany">
+      showData
+    </button>
+    {{ data_list }}
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>
+   var app = new Vue({
+    el: '#app',
+    data: {
+      data_list: [],
+      page: 0,
+    },
+    methods: {
+      getData() {
+        this.page++
+        const config = {
+          params : {
+            'api_key': '0b9e7e15682387ddae848c9c5d7588c6',
+            'language': 'ko-KR',
+            page: this.page,
+          }
+        }
+        axios.get('https://api.themoviedb.org/3/discover/movie', config)
+          .then(res=> {
+            res.data.results.forEach(movie => {
+              if (movie.poster_path == null) {
+                movie.poster_path = 'https://www.namdokorea.com/site/jeonnam/tour/images/noimage.gif'
+              }
+              else{
+                movie.poster_path = 'https://image.tmdb.org/t/p/w500'+ movie.poster_path
+              }
+              if (movie.backdrop_path == null) {
+                movie.backdrop_path = 'https://www.namdokorea.com/site/jeonnam/tour/images/noimage.gif'
+              }
+              else{
+                movie.backdrop_path = 'https://image.tmdb.org/t/p/w500'+ movie.backdrop_path
+              }
+              const movie_data = {
+                "model": 'movies.movie',
+                "pk" : movie.id,
+                "fields": {
+                  "title": movie.title,
+                  "original_title": movie.original_title,
+                  "release_date": movie.release_date,
+                  "popularity": movie.popularity,
+                  "vote_count": movie.vote_count,
+                  "vote_average": movie.vote_average,
+                  "adult": movie.adult,
+                  "overview": movie.overview,
+                  "original_language": movie.original_language,
+                  "poster_path": movie.poster_path,
+                  "backdrop_path": movie.backdrop_path,
+                  "genres": movie.genre_ids,
+                }
+              }
+              this.data_list.push(movie_data)
+            })
+          })
+          .catch(err => console.error(err))
+      },
+      showhowmany() {
+        console.log(this.data_list)
+      }
+    }
+  })
+  </script>
+</body>
+</html>
